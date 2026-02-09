@@ -416,7 +416,7 @@ GitHub: [@Pratyakshgupta887qwert](https://github.com/Pratyakshgupta887qwert)
 
 > 📘 **Detailed Documentation Available:**  
 > Complete product requirements, system design, and technical specifications →  
-> **[View PRD](docs/PRD.md)**
+> **[View PRD](https://gist.github.com/Pratyakshgupta887qwert/b61ce590894d7380172fc55518cb6de0)**
 
 ---
 
