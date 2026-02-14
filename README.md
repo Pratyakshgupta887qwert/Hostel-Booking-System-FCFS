@@ -6,12 +6,12 @@
 
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?logo=node.js)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6.0-47A248?logo=mongodb)](https://www.mongodb.com/)
+[![SQL](https://img.shields.io/badge/SQL-PostgreSQL%20%7C%20MySQL-336791?logo=postgresql)](#-technology-stack)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-010101?logo=socket.io)](https://socket.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**A real-time hostel booking platform that guarantees fair room allocation using atomic database transactions, live availability updates, and secure payment integration.**
+**A real-time hostel booking platform that guarantees fair room allocation using SQL transactions with row-level locking, live availability updates, and secure payment integration.**
 
 Designed for **universities** and **colleges** to eliminate double bookings, ensure fairness, and provide transparent hostel allocation.
 
@@ -23,9 +23,9 @@ Designed for **universities** and **colleges** to eliminate double bookings, ens
 
 ## 📌 Project Overview
 
-The **Hostel Booking System** is a MERN-based web application that implements a strict **first-come, first-serve (FCFS)** room allocation mechanism for college hostels.
+The **Hostel Booking System** is a full-stack web application that implements a strict **first-come, first-serve (FCFS)** room allocation mechanism for college hostels.
 
-Unlike traditional booking systems that suffer from race conditions and overbooking, this platform uses **MongoDB transactions, atomic operations, and real-time WebSocket communication** to ensure only one student can book the last available bed—even under heavy concurrent load.
+Unlike traditional booking systems that suffer from race conditions and overbooking, this platform uses **SQL ACID transactions, row-level locking (`SELECT ... FOR UPDATE`), and real-time WebSocket communication** to ensure only one student can book the last available bed—even under heavy concurrent load.
 
 ---
 
@@ -48,20 +48,21 @@ These issues create unfair allotment, student dissatisfaction, and administrativ
 This system provides a **backend-controlled, transaction-safe booking platform** where:
 
 - Rooms are allotted strictly on **FCFS basis** with millisecond precision
-- **MongoDB ACID transactions** prevent double bookings
+- **SQL ACID transactions + row locks** prevent double bookings
 - **Socket.IO** broadcasts availability updates in real-time
 - **Payment reservations** hold beds temporarily during checkout
 - **Automatic expiry** releases unpaid bookings
+- **Admin can create offline/manual bookings** safely using the same locking and consistency rules
 
 ---
 
 ## ✨ Key Features
 
-### 🔐 Secure Authentication
+### 🔐 Secure Authentication (Domain Restricted)
 - JWT-based authentication
 - Role-based access control (Student / Admin)
 - Protected API routes with middleware
-- Session management
+- **Only `@gla.ac.in` student email IDs allowed** (registration/login)
 
 ---
 
@@ -71,6 +72,13 @@ This system provides a **backend-controlled, transaction-safe booking platform**
 - Enable/disable booking windows
 - Real-time occupancy monitoring
 - Bulk operations support
+
+---
+
+### 🧾 Offline Booking (Admin) — NEW
+- Admin can create **offline/manual bookings** on behalf of students
+- Uses the same FCFS-safe **SQL transactions + row locks**
+- Immediately broadcasts availability updates to all users
 
 ---
 
@@ -87,12 +95,13 @@ This system provides a **backend-controlled, transaction-safe booking platform**
 When a student clicks **"Book Now"**:
 
 ```
-1. Start MongoDB session & transaction
-2. Check: Booking window open + Student has no existing booking + Room has beds
-3. Atomically decrement available beds using $inc
-4. Create booking with PENDING_PAYMENT status
-5. Commit transaction
-6. Emit real-time availability update
+1. Begin SQL transaction
+2. Check: Booking window open + Student has no existing active booking
+3. Lock room row using SELECT ... FOR UPDATE
+4. If beds available → decrement available beds
+5. Create booking with PENDING_PAYMENT status
+6. Commit transaction
+7. Emit real-time availability update
 ```
 
 **If any condition fails → transaction rolls back, no changes made**
@@ -118,10 +127,10 @@ When a student clicks **"Book Now"**:
 
 ### 🛠️ Admin Dashboard
 - View all bookings with filters
-- Monitor SLA compliance
 - Export reports (CSV/PDF)
 - Manage cancellations
 - Room-wise occupancy analytics
+- Create offline bookings
 
 ---
 
@@ -133,8 +142,8 @@ The system follows a **Three-Tier Architecture**:
 React Frontend (Vite)
    ↓ (REST API + WebSocket)
 Node.js + Express Backend
-   ↓ (ACID Transactions)
-MongoDB
+   ↓ (ACID Transactions + Row Locks)
+SQL Database (PostgreSQL/MySQL)
    ↓
 Payment Gateway (Razorpay/Stripe)
 ```
@@ -144,7 +153,8 @@ Payment Gateway (Razorpay/Stripe)
 2. ✅ **One student → one active booking**
 3. ✅ **First request wins, others fail gracefully**
 4. ✅ **Payment and booking must always stay consistent**
-5. ✅ **Atomic operations prevent race conditions**
+5. ✅ **SQL transactions + row locks prevent race conditions**
+6. ✅ **Offline bookings follow the same consistency guarantees**
 
 ---
 
@@ -160,14 +170,16 @@ Payment Gateway (Razorpay/Stripe)
 
 ### Backend
 - **Node.js** + **Express.js**
-- **MongoDB** (with Mongoose)
+- **SQL Database** (PostgreSQL recommended / MySQL supported)
+- ORM/Query Layer: **Prisma / Sequelize / Knex** (choose one)
 - **Socket.IO** (Real-time communication)
 - **JWT** (Authentication)
 - **Bcrypt** (Password hashing)
 - **Razorpay/Stripe** SDK (Payments)
 
 ### Database
-- **MongoDB** (ACID transactions enabled)
+- **PostgreSQL / MySQL**
+- **Row-level locking** + **ACID transactions**
 
 ---
 
@@ -189,7 +201,7 @@ HostelBookingSystem/
 ├── server/                     # Backend (Node.js + Express)
 │   ├── config/                 # DB & Socket config
 │   ├── controllers/            # Business logic
-│   ├── models/                 # Mongoose schemas
+│   ├── models/                 # SQL models (Prisma/Sequelize/etc.)
 │   ├── routes/                 # API endpoints
 │   ├── middleware/             # Auth & validation
 │   ├── utils/                  # Helper functions
@@ -198,7 +210,7 @@ HostelBookingSystem/
 ├── docs/
 │   └── PRD.md                  # Complete Product Requirements Document
 │
-└���─ README.md
+└── README.md
 ```
 
 ---
@@ -207,15 +219,15 @@ HostelBookingSystem/
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB (v6.0+)
+- PostgreSQL (v14+) **or** MySQL (v8+)
 - npm or yarn
 
 ---
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/Pratyakshgupta887qwert/HostelBookingSystem.git
-cd HostelBookingSystem
+git clone https://github.com/Pratyakshgupta887qwert/Hostel-Booking-System-FCFS.git
+cd Hostel-Booking-System-FCFS
 ```
 
 ---
@@ -229,8 +241,9 @@ npm install
 
 **Create `.env` file:**
 ```env
-# Database
-MONGO_URI=mongodb://localhost:27017/hostel_booking
+# Database (choose one)
+DATABASE_URL=postgresql://user:password@localhost:5432/hostel_booking
+# DATABASE_URL=mysql://user:password@localhost:3306/hostel_booking
 
 # JWT
 JWT_SECRET=your_jwt_secret_key
@@ -244,6 +257,9 @@ RAZORPAY_KEY_SECRET=your_key_secret
 PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:3000
+
+# Policy
+ALLOWED_STUDENT_EMAIL_DOMAIN=gla.ac.in
 ```
 
 **Start the server:**
@@ -280,30 +296,40 @@ Frontend runs on `http://localhost:3000`
 
 ## 🔥 Key Technical Highlights
 
-### 🎯 Concurrency Control
-```javascript
-// Atomic booking operation using MongoDB transactions
-const room = await Room.findOneAndUpdate(
-  { _id: roomId, availableBeds: { $gt: 0 } },
-  { $inc: { availableBeds: -1 } },
-  { new: true, session }
-);
+### 🎯 Concurrency Control (SQL + Row Locks)
+```sql
+-- Lock the room row so only one transaction can decrement beds at a time
+BEGIN;
+
+SELECT id, available_beds
+FROM rooms
+WHERE id = :roomId
+FOR UPDATE;
+
+-- If available_beds > 0:
+UPDATE rooms
+SET available_beds = available_beds - 1
+WHERE id = :roomId;
+
+-- Insert booking (PENDING_PAYMENT) with expires_at
+COMMIT;
 ```
 
 ### ⚡ Real-Time Updates
 ```javascript
 // Socket.IO event emission
 io.emit('room:availability', {
-  roomId: room._id,
-  availableBeds: room.availableBeds
+  roomId,
+  availableBeds
 });
 ```
 
 ### 🔒 Payment Safety
 - 15-minute booking hold
 - Webhook signature verification
-- Automatic expiry with cron jobs
-- Refund initiation on failure
+- Automatic expiry with scheduled jobs
+- Refund initiation on failure (policy-based)
+- Idempotent payment verification
 
 ---
 
@@ -311,16 +337,16 @@ io.emit('room:availability', {
 
 ### Authentication
 ```
-POST   /api/auth/register      # Register new student
+POST   /api/auth/register      # Register new student (only @gla.ac.in)
 POST   /api/auth/login         # Login (Student/Admin)
 GET    /api/auth/profile       # Get user profile
 ```
 
 ### Bookings
 ```
-POST   /api/bookings           # Create booking (FCFS)
+POST   /api/bookings              # Create booking (FCFS)
 GET    /api/bookings/my-bookings  # Get user bookings
-GET    /api/bookings/all       # Get all bookings (Admin)
+GET    /api/bookings/all          # Get all bookings (Admin)
 PUT    /api/bookings/:id/cancel   # Cancel booking
 ```
 
@@ -335,8 +361,13 @@ PUT    /api/rooms/:id          # Update room (Admin)
 ### Payments
 ```
 POST   /api/payments/create-session  # Initialize payment
-POST   /api/payments/webhook        # Payment webhook
-GET    /api/payments/:id/status     # Check payment status
+POST   /api/payments/webhook         # Payment webhook
+GET    /api/payments/:id/status      # Check payment status
+```
+
+### Admin (Offline Booking)
+```
+POST   /api/admin/offline-booking    # Create offline/manual booking (Admin)
 ```
 
 ---
@@ -416,7 +447,7 @@ GitHub: [@Pratyakshgupta887qwert](https://github.com/Pratyakshgupta887qwert)
 
 > 📘 **Detailed Documentation Available:**  
 > Complete product requirements, system design, and technical specifications →  
-> **[View PRD](https://gist.github.com/Pratyakshgupta887qwert/b61ce590894d7380172fc55518cb6de0)**
+> **See `docs/PRD.md` in this repository.**
 
 ---
 
@@ -424,17 +455,17 @@ GitHub: [@Pratyakshgupta887qwert](https://github.com/Pratyakshgupta887qwert)
 
 This project demonstrates:
 
-- ✅ **Distributed Systems** – Race condition handling
-- ✅ **Database Management** – ACID transactions
+- ✅ **Distributed Systems** – race condition handling
+- ✅ **Database Management** – SQL ACID transactions + row locking
 - ✅ **Real-Time Systems** – WebSocket communication
-- ✅ **Software Engineering** – Clean architecture, SOLID principles
-- ✅ **Full-Stack Development** – MERN stack proficiency
+- ✅ **Software Engineering** – clean architecture, SOLID principles
+- ✅ **Full-Stack Development** – React + Node/Express + SQL
 
 ---
 
 ## 🙏 Acknowledgments
 
-- MongoDB documentation for transaction examples
+- PostgreSQL/MySQL documentation for transaction + locking patterns
 - Socket.IO community for real-time patterns
 - Razorpay/Stripe for payment integration guides
 
