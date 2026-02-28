@@ -1,154 +1,130 @@
 # 🏨 Hostel Booking System -- Backend
 
-Backend service for Hostel Booking System (FCFS based).
+Backend service for a FCFS-based Hostel Booking System.
 
-------------------------------------------------------------------------
+This system is designed strictly for hostel booking purposes (not full
+hostel management). No historical records are maintained between
+academic sessions.
+
+---
 
 ## 🚀 Tech Stack
 
--   Node.js
--   Express.js
--   PostgreSQL
--   Sequelize (ORM)
--   JWT (Authentication)
--   bcrypt (Password Hashing)
+- Node.js
+- Express.js
+- PostgreSQL
+- Sequelize (ORM)
+- JWT (Authentication)
+- bcrypt (Password Hashing)
+- Helmet, CORS, Morgan
 
-------------------------------------------------------------------------
+---
 
-## 📦 Project Setup
+## 🧱 Architecture Overview
 
-### 1️⃣ Clone the Repository
+### 🔐 Auth Database (auth_db)
 
-``` bash
-git clone <repo-url>
-cd Hostel-Booking-System-FCFS/backend
-```
+Source of truth for: - Student identity - Hosteller status - Year -
+Gender
 
-------------------------------------------------------------------------
+Authentication always happens here.
 
-### 2️⃣ Install Dependencies
+---
 
-``` bash
+### 🏠 Hostel Database (hostel_db) -- Phase 2
+
+Used only for: - Booking logic - Room allocation - Availability
+management
+
+`hostel_students` table contains only active hostellers for the current
+session.
+
+---
+
+## 🔐 Authentication Flow
+
+1.  Student submits email & password
+2.  Validate from auth_db
+3.  Ensure hosteller = true
+4.  Generate JWT (1 day expiry)
+5.  Protected routes require Bearer token
+
+Token expires after 1 day. Frontend should remove token from memory on
+tab close.
+
+---
+
+## 🔄 Academic Session Reset Strategy
+
+This system does NOT store historical booking data.
+
+At the beginning of every new academic session:
+
+1.  TRUNCATE hostel_students table
+2.  Reset room availability
+3.  Open booking window
+
+Fresh records will be recreated automatically: - When student logs in -
+When admin performs booking (future feature)
+
+---
+
+## 📦 Setup Instructions
+
+### Install Dependencies
+
 npm install
-```
 
-------------------------------------------------------------------------
+### Environment Setup
 
-### 3️⃣ Environment Setup
-
-Copy the example file:
-
-``` bash
 cp .env.example .env
-```
 
-(Windows users can manually copy and rename.)
+Required variables:
 
-Update `.env` with your local PostgreSQL credentials.
+PORT=5000 AUTH_DB_HOST=localhost AUTH_DB_PORT=5432 AUTH_DB_NAME=auth_db
+AUTH_DB_USER=postgres AUTH_DB_PASSWORD=your_password
+JWT_SECRET=your_long_random_secret JWT_EXPIRES_IN=1d
 
-------------------------------------------------------------------------
+### Seed Auth Database
 
-### 4️⃣ Create Local Database
-
-Make sure PostgreSQL is installed.
-
-Create database:
-
-auth_db
-
-You can create it using pgAdmin or:
-
-``` bash
-psql -U postgres -c "CREATE DATABASE auth_db;"
-```
-
-------------------------------------------------------------------------
-
-### 5️⃣ Seed Auth Database (500 Dummy Students)
-
-``` bash
 npm run seed:auth
-```
 
-This will:
+Default password: hostel123
 
--   Create `students` table
--   Insert 500 dummy records
--   70% hostellers, 30% dayscholars
--   All passwords are hashed
+### Start Development Server
 
-🔐 Default Password for All Students:
-
-hostel123
-
-Example login:
-
-student1@gla.ac.in\
-password: hostel123
-
-------------------------------------------------------------------------
-
-### 6️⃣ Reset Database (If Needed)
-
-``` bash
-npm run reset:auth
-npm run seed:auth
-```
-
-⚠️ This will drop existing tables.
-
-------------------------------------------------------------------------
-
-### 7️⃣ Start Development Server
-
-``` bash
 npm run dev
-```
 
-Server runs on:
+Server: http://localhost:5000
 
-http://localhost:5000
+---
 
-------------------------------------------------------------------------
+## ✅ Completed (Phase 1)
 
-## 🧱 Current Progress
+- Structured project architecture
+- Auth DB integration
+- Hashed passwords
+- Login API
+- JWT authentication
+- Auth middleware
+- Protected route
 
--   Auth DB setup
--   Sequelize connection configured
--   Server startup guarded by DB connection
--   Seed + Reset scripts implemented
--   500 dummy students created
+---
 
-------------------------------------------------------------------------
+## 🔜 Next Phase (Phase 2)
 
-## 🔐 Environment Variables Required
+- Create hostel_db
+- Create hostel_students table
+- Sync logic during login
+- Room & allocation design
 
-PORT=5000
+---
 
-AUTH_DB_HOST=localhost\
-AUTH_DB_PORT=5432\
-AUTH_DB_NAME=auth_db\
-AUTH_DB_USER=postgres\
-AUTH_DB_PASSWORD=your_password_here
+## 👨‍💻 Development Rules
 
-JWT_SECRET=your_super_secret_key\
-JWT_EXPIRES_IN=1d
+- Never commit `.env`
+- Always work on your own branch
+- Pull before starting work
+- Keep Auth DB and Hostel DB responsibilities separate
 
-------------------------------------------------------------------------
-
-## 📌 Notes
-
--   `.env` should NOT be committed.
--   Use `.env.example` as reference.
--   Always work on your own branch.
--   Pull latest changes before starting work.
-
-------------------------------------------------------------------------
-
-## 📈 Next Steps
-
--   Implement Login API
--   Create Hostel DB
--   Sync logic between Auth DB and Hostel DB
--   Implement JWT middleware
--   Build booking system
+System designed for simplicity, clarity, and controlled scope.
