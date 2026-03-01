@@ -31,3 +31,24 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token." });
   }
 };
+
+export const requireStudent = (req, res, next) => {
+  if (req.user.type !== "student") {
+    return res.status(403).json({ message: "Access denied. Students only." });
+  }
+  next();
+};
+
+export const requireAdmin = (req, res, next) => {
+  if (req.user.type !== "admin") {
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+  next();
+};
+
+export const requireMainAdmin = (req, res, next) => {
+  if (req.user.type !== "admin" || req.user.role !== "main_admin") {
+    return res.status(403).json({ message: "Access denied. Main admin only." });
+  }
+  next();
+};

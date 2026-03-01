@@ -17,11 +17,11 @@ const sequelize = new Sequelize(
   },
 );
 
-// Define Student model
-const Student = sequelize.define(
-  "Student",
+// Define Admin model
+const Admin = sequelize.define(
+  "Admin",
   {
-    roll_number: {
+    employee_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
@@ -38,48 +38,40 @@ const Student = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    year: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    gender: {
+    role: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    hosteller: {
-      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },
   {
-    tableName: "students",
+    tableName: "admins",
     timestamps: false,
   },
 );
 
-async function seedStudents() {
+async function seedAdmins() {
   try {
-    await sequelize.sync({ force: true });
+    await Admin.sync({ force: true });
 
-    const hashedPassword = await bcrypt.hash("hostel123", 10);
+    const hashedPassword = await bcrypt.hash("admin123", 10);
 
-    const students = [];
+    const admins = [];
 
-    for (let i = 1; i <= 500; i++) {
-      students.push({
-        roll_number: 1000 + i,
-        name: `Student${i}`,
-        email: `student${i}@gla.ac.in`,
+    for (let i = 1; i <= 10; i++) {
+      admins.push({
+        employee_id: 100 + i,
+        name: i === 1 ? "Main Admin" : `Sub Admin ${i - 1}`,
+        email: i === 1 ? "mainadmin@gla.ac.in" : `subadmin${i - 1}@gla.ac.in`,
         password: hashedPassword,
-        year: Math.floor(Math.random() * 4) + 1,
-        gender: i % 2 === 0 ? "male" : "female",
-        hosteller: i <= 350,
+        role: i === 1 ? "main_admin" : "sub_admin",
       });
     }
 
-    await Student.bulkCreate(students);
+    await Admin.bulkCreate(admins);
 
-    console.log("500 students inserted successfully ✅");
+    console.log("10 admins inserted successfully ✅");
+    console.log("Default password for all admins: admin123");
+
     process.exit();
   } catch (error) {
     console.error("Seeding failed ❌", error);
@@ -87,4 +79,4 @@ async function seedStudents() {
   }
 }
 
-seedStudents();
+seedAdmins();

@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import authRoutes from "./routes/authRoutes.js";
+import studentAuthRoutes from "./routes/studentAuthRoutes.js";
+import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
 
-app.use("/api/auth", authRoutes);
+app.use("/api/student", studentAuthRoutes);
+
+app.use("/api/admin", adminAuthRoutes);
 
 export default app;
