@@ -14,7 +14,7 @@ const Student = authSequelize.define(
       unique: true,
     },
     password: DataTypes.STRING,
-    year: DataTypes.STRING,
+    year: DataTypes.INTEGER,
     gender: DataTypes.STRING,
     hosteller: DataTypes.BOOLEAN,
   },

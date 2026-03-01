@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Student from "../models/studentModel.js";
+import { ensureHostelStudentExists } from "../services/hostelStudentService.js";
 
 export const login = async (req, res) => {
   try {
@@ -30,10 +31,14 @@ export const login = async (req, res) => {
       return res.status(403).json({ message: "Not a hosteller" });
     }
 
+    // Ensure student exists in hostel_db
+    await ensureHostelStudentExists(student);
+
     // Generate JWT
     const token = jwt.sign(
       {
         roll_number: student.roll_number,
+        name: student.name,
         year: student.year,
         gender: student.gender,
       },
@@ -44,6 +49,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       token,
       roll_number: student.roll_number,
+      name: student.name,
       year: student.year,
       gender: student.gender,
     });
