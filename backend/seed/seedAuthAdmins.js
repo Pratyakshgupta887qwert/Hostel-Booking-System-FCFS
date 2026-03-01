@@ -6,12 +6,12 @@ import { Sequelize, DataTypes } from "sequelize";
 
 // Create Sequelize instance for Auth DB
 const sequelize = new Sequelize(
-  process.env.AUTH_DB_NAME,
-  process.env.AUTH_DB_USER,
-  process.env.AUTH_DB_PASSWORD,
+  "auth_db",
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: process.env.AUTH_DB_HOST,
-    port: process.env.AUTH_DB_PORT,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: "postgres",
     logging: false,
   },

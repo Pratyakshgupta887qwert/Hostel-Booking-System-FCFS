@@ -8,16 +8,31 @@ const HostelStudent = hostelSequelize.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
-    year: DataTypes.INTEGER,
-    gender: DataTypes.STRING,
+
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 1,
+        max: 4,
+      },
+    },
+
+    gender: {
+      type: DataTypes.ENUM("male", "female"),
+      allowNull: false,
+    },
+
     room_allocated: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+
     block: {
       type: DataTypes.STRING,
       allowNull: true,
     },
+
     room_number: {
       type: DataTypes.STRING,
       allowNull: true,
