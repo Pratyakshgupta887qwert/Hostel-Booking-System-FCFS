@@ -5,6 +5,7 @@ import app from "./app.js";
 import authSequelize from "./config/authDatabase.js";
 import hostelSequelize from "./config/hostelDatabase.js";
 import HostelStudent from "./models/hostelStudentModel.js";
+import Admin from "./models/adminModel.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,7 +24,7 @@ async function startServer() {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Auth DB connection failed ❌");
+    console.error("Database connection failed ❌");
     console.error(error);
     process.exit(1);
   }

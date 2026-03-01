@@ -1,154 +1,87 @@
-# 🏨 Hostel Booking System -- Backend
+# Hostel Booking System -- Backend (Phase 2 Completed)
 
-Backend service for a FCFS-based Hostel Booking System.
+## Current Status
 
-This system is focused strictly on booking operations (not full hostel
-management). Historical records are not maintained between academic
-sessions.
-
----
-
-# 🚀 Tech Stack
-
-- Node.js
-- Express.js
-- PostgreSQL
-- Sequelize (ORM)
-- JWT (Authentication)
-- bcrypt (Password Hashing)
-- Helmet, CORS, Morgan
+Authentication system is fully implemented with role-based access
+control.
 
 ---
 
-# 🧱 Architecture Overview
+## Student Authentication
 
-## 🔐 Auth Database (auth_db)
+### Endpoints
 
-Source of truth for:
+- POST /api/student/login
+- GET /api/student/profile (Protected)
 
-- Student identity
-- Hosteller status
-- Year
-- Gender
+### Features
 
-- Admin accounts (planned)
-
-Authentication always happens here.
-
----
-
-## 🏠 Hostel Database (hostel_db)
-
-Used only for:
-
-- Booking logic
-- Room allocation
-- Availability management
-
-`hostel_students` table contains only active hostellers for the current
-academic session.
+- Validates against Auth DB (students table)
+- Checks hosteller status
+- Syncs student into hostel_db on first login
+- Generates JWT with:
+  - type
+  - roll_number
+  - name
+  - year
+  - gender
+- Role-protected profile route
 
 ---
 
-# 🔐 Student Authentication Flow
+## Admin Authentication
 
-1.  Student submits email & password
-2.  Validate from auth_db
-3.  Ensure `hosteller = true`
-4.  Ensure record exists in hostel_db
-5.  Generate JWT (1 day expiry)
-6.  Protected routes require Bearer token
+### Endpoints
 
-JWT Payload (Student):
+- POST /api/admin/login
+- GET /api/admin/profile (Protected)
 
-{ "type": "student", "roll_number": 1001, "name": "Student Name",
-"year": 2, "gender": "male" }
+### Features
 
----
-
-# 🔄 Academic Session Reset Strategy
-
-This system does NOT store historical booking data.
-
-At the beginning of every new academic session:
-
-1.  TRUNCATE hostel_students table
-2.  Reset room availability
-3.  Open booking window
-
-Fresh records will be recreated automatically when: - Student logs in -
-Admin performs booking (future feature)
+- Validates against Auth DB (admins table)
+- Generates JWT with:
+  - type
+  - employee_id
+  - name
+  - role
+- Role-protected profile route
 
 ---
 
-# 🛠 Phase Progress
+## Role-Based Middleware
 
-## ✅ Phase 1 -- Student Authentication
+Implemented middlewares: - verifyToken - requireStudent - requireAdmin -
+requireMainAdmin
 
-- Structured folder architecture
-- Auth DB integration
-- Hashed passwords
-- JWT authentication
-- Auth middleware
-- Protected routes
-
-## ✅ Phase 2 -- Online Sync to Hostel DB
-
-- hostel_db created
-- hostel_students table created
-- Auto-sync during login
-- Clean reset strategy
-
-## 🔜 Phase 3 -- Admin Authentication (Next)
-
-- Admin model & seeding
-- Admin login API
-- Role-based JWT
-- Main Admin / Sub Admin support
-- Middleware for role validation
+Access control is enforced between student and admin routes.
 
 ---
 
-# 📦 Setup Instructions
+## Database Architecture
 
-## Install Dependencies
+### Auth DB
 
-npm install
+- students table
+- admins table
 
-## Environment Setup
+### Hostel DB
 
-Create `.env` file with:
-
-PORT=5000
-
-AUTH_DB_HOST=localhost AUTH_DB_PORT=5432 AUTH_DB_NAME=auth_db
-AUTH_DB_USER=postgres AUTH_DB_PASSWORD=your_password
-
-JWT_SECRET=your_long_random_secret JWT_EXPIRES_IN=1d
-
-## Seed Auth Database
-
-npm run seed:auth
-
-Default student password: hostel123
-
-## Start Development Server
-
-npm run dev
-
-Server runs at: http://localhost:5000
+- hostel_students table (auto-sync on student login)
 
 ---
 
-# 👨‍💻 Development Rules
+## Testing Status
 
-- Never commit `.env`
-- Always work on your own branch
-- Pull from main before starting work
-- Keep Auth DB and Hostel DB responsibilities separate
-- Keep business logic out of controllers when possible
+All test cases passed: - Student login/profile - Admin login/profile -
+Cross-role access blocked
 
 ---
 
-System designed with clean separation of concerns, simplicity, and
-controlled scope.
+## Next Phase
+
+- Hostel model
+- Room model
+- Booking window logic
+- Admin-only protected routes
+
+System is structurally stable and ready for domain-level development.
