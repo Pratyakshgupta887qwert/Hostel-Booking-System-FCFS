@@ -61,7 +61,7 @@ async function seedStudents() {
   try {
     await sequelize.sync({ force: true });
 
-    const hashedPassword = await bcrypt.hash("hostel123", 10);
+    const hashedPassword = await bcrypt.hash("student123", 10);
 
     const students = [];
 

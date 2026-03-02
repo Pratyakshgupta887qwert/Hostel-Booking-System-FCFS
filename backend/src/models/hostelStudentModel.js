@@ -28,8 +28,8 @@ const HostelStudent = hostelSequelize.define(
       defaultValue: false,
     },
 
-    block: {
-      type: DataTypes.STRING,
+    hostel_id: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
 
