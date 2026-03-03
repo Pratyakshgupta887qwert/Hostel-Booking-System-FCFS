@@ -11,10 +11,6 @@ const HostelAllowedYear = hostelSequelize.define(
     year: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      validate: {
-        min: 1,
-        max: 4,
-      },
     },
   },
   {
