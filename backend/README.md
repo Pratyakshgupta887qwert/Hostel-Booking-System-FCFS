@@ -369,11 +369,12 @@ All currently implemented backend endpoints are listed below.
 
 # 🧭 Endpoint Categories Summary
 
-Total Implemented Endpoints: **7**
+Total Implemented Endpoints: **8**
 
 - 2 Student Auth APIs
 - 2 Admin Auth APIs
 - 2 Main Admin Management APIs
+- 1 Admin Hostel View API
 - 1 Student Hostel View API
 
 Room management and booking APIs are pending implementation.
