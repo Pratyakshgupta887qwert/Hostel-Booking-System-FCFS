@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const authSequelize = new Sequelize(
-  "auth_db",
+  process.env.AUTH_DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {

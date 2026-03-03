@@ -12,10 +12,6 @@ const HostelStudent = hostelSequelize.define(
     year: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        min: 1,
-        max: 4,
-      },
     },
 
     gender: {

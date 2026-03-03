@@ -5,6 +5,8 @@ import app from "./app.js";
 import authSequelize from "./config/authDatabase.js";
 import hostelSequelize from "./config/hostelDatabase.js";
 
+import "./models/index.js";
+
 const PORT = process.env.PORT || 5000;
 
 let server;

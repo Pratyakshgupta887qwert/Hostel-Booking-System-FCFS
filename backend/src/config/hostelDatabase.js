@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const hostelSequelize = new Sequelize(
-  "hostel_db",
+  process.env.HOSTEL_DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {
