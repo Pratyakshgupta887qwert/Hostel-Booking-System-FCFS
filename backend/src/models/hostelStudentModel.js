@@ -15,7 +15,7 @@ const HostelStudent = hostelSequelize.define(
     },
 
     gender: {
-      type: DataTypes.ENUM("male", "female"),
+      type: DataTypes.STRING,
       allowNull: false,
     },
 

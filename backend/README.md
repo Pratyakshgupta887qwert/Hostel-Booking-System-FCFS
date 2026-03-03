@@ -1,251 +1,385 @@
-# Hostel Booking System — Backend (Phase 3 Schema Completed)
+# 🏨 Hostel Booking System — Backend Progress Report
 
-## Current Status
+## 📌 Project Overview
 
-Authentication layer is complete.  
-Core hostel domain schema has been designed and implemented with clean relational modeling.
+This is a role-based Hostel Booking Backend System designed for a university campus.
 
-System now includes:
+The system supports:
 
-- Role-based access control
-- Dual database architecture
-- Normalized hostel domain schema
-- Composite primary keys for room modeling
-- Centralized model associations
-- FCFS-ready database structure
+- Student authentication (hostellers only)
+- Admin authentication (main admin + sub admin)
+- Role-based access control (RBAC)
+- Hostel eligibility filtering
+- Structured and normalized relational schema
+- FCFS-ready architecture
 
-System is stable and ready for booking logic implementation.
+The backend is designed to be:
+
+- Scalable
+- Secure
+- Modular
+- Database-normalized
+- Transaction-ready
 
 ---
 
-# 🔐 Authentication Layer (Phase 2 Complete)
+# ✅ Completed Phases
 
-## Student Authentication
+---
 
-### Endpoints
+## 🔐 Phase 1 — Authentication Layer (Completed)
 
-- POST /api/student/login
-- GET /api/student/profile (Protected)
+### Student Authentication
 
-### Features
+**Endpoints**
 
-- Validates against Auth DB (students table)
-- Checks hosteller = true
-- Syncs student into hostel_db on first login
+- `POST /api/student/login`
+- `GET /api/student/profile`
+
+**Features**
+
+- Validates against `auth_db`
+- Checks `hosteller = true`
+- Auto-syncs student into `hostel_db`
 - Generates JWT containing:
   - type
   - roll_number
   - name
   - year
   - gender
-- Role-protected profile route
 
 ---
 
-## Admin Authentication
+### Admin Authentication
 
-### Endpoints
+**Endpoints**
 
-- POST /api/admin/login
-- GET /api/admin/profile (Protected)
+- `POST /api/admin/login`
+- `GET /api/admin/profile`
 
-### Features
+**Features**
 
-- Validates against Auth DB (admins table)
+- Validates against `auth_db`
 - Generates JWT containing:
   - type
   - employee_id
   - name
   - role
-- Role-protected profile route
+- Role-based access control enforced
 
 ---
 
-## Role-Based Middleware
+## 🔒 Role-Based Middleware (Completed)
 
 Implemented:
 
-- verifyToken
-- requireStudent
-- requireAdmin
-- requireMainAdmin
+- `verifyToken`
+- `requireStudent`
+- `requireAdmin`
+- `requireMainAdmin`
 
-Access separation:
+Access Control Rules:
 
 - Students cannot access admin routes
-- Admins cannot access student routes
-- Only main admin can manage system structure
+- Sub admins cannot modify data
+- Only main admin can create or modify system structure
 
 ---
 
 # 🗄 Database Architecture
 
-## 1️⃣ Auth Database (auth_db)
+## 1️⃣ Auth Database (`auth_db`)
 
 Source of truth for authentication.
 
-### Tables
+### Tables:
 
-- students
-- admins
+- `students`
+- `admins`
 
-This database is NOT modified by hostel booking logic.
-
----
-
-## 2️⃣ Hostel Database (hostel_db)
-
-Dedicated to booking and allocation logic.
+This database is not modified by booking logic.
 
 ---
 
-# 🏨 Domain Schema (Phase 3)
+## 2️⃣ Hostel Database (`hostel_db`)
 
-Fully normalized relational schema implemented.
+Dedicated to hostel booking domain.
 
 ---
 
-## 1️⃣ hostels
+# 🏗 Phase 2 — Domain Schema (Completed)
 
-| Column      | Type    | Key         |
-| ----------- | ------- | ----------- |
-| hostel_id   | INTEGER | Primary Key |
-| hostel_name | STRING  | Unique      |
-| gender      | ENUM    | —           |
-| is_active   | BOOLEAN | —           |
+Fully normalized schema implemented.
+
+---
+
+## 🏨 hostels
+
+- `hostel_id` (Primary Key, auto increment)
+- `hostel_name` (Unique)
+- `gender`
+- `is_active`
 
 Purpose:
 
-- Structural entity
-- Parent table for rooms and allowed years
-- Controlled by main admin
+- Core structural entity
+- Parent table for rooms and eligibility
 
 ---
 
-## 2️⃣ hostel_allowed_years
+## 📚 hostel_allowed_years
 
 Composite Primary Key:
 
+```
 (hostel_id, year)
-
-| Column    | Type    | Key               |
-| --------- | ------- | ----------------- |
-| hostel_id | INTEGER | PK + FK → hostels |
-| year      | INTEGER | PK                |
+```
 
 Purpose:
 
-- Defines academic eligibility per hostel
-- Replaces 4-boolean-column design
+- Defines which academic years can book a hostel
+- Replaces boolean year columns
 - Fully normalized
 
 ---
 
-## 3️⃣ rooms
+## 🛏 rooms
 
 Composite Primary Key:
 
+```
 (hostel_id, room_number)
+```
 
-| Column         | Type    | Key               |
-| -------------- | ------- | ----------------- |
-| hostel_id      | INTEGER | PK + FK → hostels |
-| room_number    | STRING  | PK                |
-| total_beds     | INTEGER | —                 |
-| available_beds | INTEGER | —                 |
-| is_ac          | BOOLEAN | —                 |
+Fields:
+
+- `total_beds`
+- `available_beds`
+- `is_ac`
 
 Purpose:
 
-- Core FCFS capacity control table
-- Bed count tracked here
-- No derived data in hostel table
+- Core capacity control table
+- FCFS booking-ready structure
+- No derived data stored in hostel table
 
 ---
 
-## 4️⃣ hostel_students
+## 👨‍🎓 hostel_students
 
-| Column         | Type    | Key                       |
-| -------------- | ------- | ------------------------- |
-| roll_number    | INTEGER | Primary Key               |
-| year           | INTEGER | —                         |
-| gender         | ENUM    | —                         |
-| room_allocated | BOOLEAN | —                         |
-| hostel_id      | INTEGER | FK → hostels              |
-| room_number    | STRING  | Logical reference → rooms |
+- `roll_number` (Primary Key)
+- `year`
+- `gender`
+- `room_allocated`
+- `hostel_id`
+- `room_number`
 
 Purpose:
 
 - Live allocation state table
-- Tracks current hostel & room assignment
+- Tracks current assignment
 - Not a booking history table
-- Auto-synced on first login
+- Synced on first login
 
-Composite FK to rooms is logically enforced at application level through transactional booking.
-
----
-
-# 🔗 Relationships Overview
-
-Hostel
-├── Rooms
-├── Allowed Years
-└── Hostel Students
-
-Room
-└── Hostel Students
-
-- Rooms use composite primary key
-- Allowed years use composite primary key
-- Foreign key integrity enforced at hostel level
-- Composite room integrity enforced via application logic
+Composite FK to rooms is enforced logically via transaction-level validation.
 
 ---
 
-# ⚙️ Architectural Decisions
+# 🌐 Phase 3 — Hostel Management APIs (Completed)
 
-- No derived fields stored in hostel table
-- No redundant year columns
-- Composite PK used for room identity
-- Associations centralized in models/index.js
-- Clean model import structure
-- Sequelize sync controlled centrally
-- Booking integrity handled through transactions (planned)
+## Main Admin Capabilities
 
----
+- Create Hostel  
+  `POST /api/admin/hostels`
 
-# 🧪 Testing Status
+- Define Allowed Years  
+  `POST /api/admin/hostels/:id/years`
 
-- Student login/profile ✅
-- Admin login/profile ✅
-- Role enforcement ✅
-- Cross-role blocking ✅
-- Model synchronization ✅
-- All domain tables created successfully ✅
+- View All Hostels (Admin & Sub Admin)  
+  `GET /api/admin/hostels`
 
 ---
 
-# 🚀 Next Phase (Phase 4)
+## Student Capabilities
 
-- Admin APIs for:
-  - Create Hostel
-  - Define Allowed Years
-  - Add Rooms
-- Global booking window logic
-- FCFS transactional booking implementation
-- Concurrency control with row locking
-- Booking transaction service layer
+- View Eligible Hostels  
+  `GET /api/student/hostels`
+
+Eligibility filters:
+
+- gender match
+- year allowed
+- hostel is_active = true
+
+Clean separation of student and admin controllers implemented.
 
 ---
 
-# 🎯 System Readiness
+# 🧠 Architectural Highlights
 
-Backend is now:
+- Clean separation of concerns
+- No mixed student/admin logic
+- Composite primary keys for room modeling
+- No redundant data storage
+- Associations centralized in `models/index.js`
+- Application-level integrity enforcement
+- FCFS-ready schema
+- Scalable for concurrency control
 
-- Structurally normalized
-- Role-secure
-- Database-consistent
-- FCFS-ready
-- Cleanly modularized
+---
 
-Ready to move into transactional booking logic.
+# 🚀 Upcoming Phases
+
+---
+
+## 🛠 Phase 4 — Room Management
+
+To be finalized after team discussion:
+
+Possible approaches:
+
+- Single room creation
+- Bulk room creation
+- Auto-generation (A101–A120 style)
+
+Decision pending.
+
+---
+
+## ⚡ Phase 5 — Booking Engine (Core FCFS Logic)
+
+Planned features:
+
+- Transaction-based booking
+- Row-level locking
+- Concurrency-safe bed decrement
+- Allocation update in `hostel_students`
+- Double booking prevention
+- Booking window control
+
+---
+
+## 🧾 Phase 6 — Booking Window Control
+
+- Open/Close booking globally
+- Role-based booking control
+- Possibly year-based booking windows
+
+---
+
+## 📊 Phase 7 — Admin Dashboard
+
+- View total beds per hostel
+- View occupancy
+- View allocated students
+- Reset allocation per academic year
+
+---
+
+## 🔐 Phase 8 — Production Hardening
+
+- Sequelize transactions
+- Optimistic/pessimistic locking
+- Rate limiting
+- Audit logging
+- Refresh token implementation
+- Environment configuration for deployment
+- Deployment to cloud (Render / Railway / etc.)
+
+---
+
+# 🎯 Current System Status
+
+- Authentication layer: ✅ Stable
+- Role enforcement: ✅ Stable
+- Domain schema: ✅ Implemented
+- Hostel management APIs: ✅ Working
+- Student eligibility filtering: ✅ Working
+- Room API: ⏳ Pending
+- Booking engine: ⏳ Pending
+
+System foundation is clean, stable, and ready for transactional booking development.
+
+---
+
+---
+
+# 📡 API Endpoints Overview
+
+All currently implemented backend endpoints are listed below.
+
+---
+
+## 🔐 Authentication APIs
+
+### 👨‍🎓 Student Authentication
+
+| Method | Endpoint               | Access  | Description                       |
+| ------ | ---------------------- | ------- | --------------------------------- |
+| POST   | `/api/student/login`   | Public  | Login student (hosteller only)    |
+| GET    | `/api/student/profile` | Student | Get authenticated student profile |
+
+---
+
+### 👨‍💼 Admin Authentication
+
+| Method | Endpoint             | Access | Description                     |
+| ------ | -------------------- | ------ | ------------------------------- |
+| POST   | `/api/admin/login`   | Public | Login admin                     |
+| GET    | `/api/admin/profile` | Admin  | Get authenticated admin profile |
+
+---
+
+## 🏨 Hostel Management APIs
+
+### 🔷 Main Admin Only
+
+| Method | Endpoint                       | Access     | Description                     |
+| ------ | ------------------------------ | ---------- | ------------------------------- |
+| POST   | `/api/admin/hostels`           | Main Admin | Create new hostel               |
+| POST   | `/api/admin/hostels/:id/years` | Main Admin | Define allowed years for hostel |
+
+---
+
+### 🔷 Admin & Sub Admin (Read-Only)
+
+| Method | Endpoint             | Access            | Description                         |
+| ------ | -------------------- | ----------------- | ----------------------------------- |
+| GET    | `/api/admin/hostels` | Admin / Sub Admin | View all hostels with allowed years |
+
+---
+
+### 👨‍🎓 Student Hostel Access
+
+| Method | Endpoint               | Access  | Description                                                     |
+| ------ | ---------------------- | ------- | --------------------------------------------------------------- |
+| GET    | `/api/student/hostels` | Student | View eligible hostels (filtered by gender, year, active status) |
+
+---
+
+# 🔑 Role Access Summary
+
+| Role       | Capabilities                                                 |
+| ---------- | ------------------------------------------------------------ |
+| Student    | Login, view profile, view eligible hostels                   |
+| Sub Admin  | Login, view all hostels                                      |
+| Main Admin | Login, create hostel, define allowed years, view all hostels |
+
+---
+
+# 🧭 Endpoint Categories Summary
+
+Total Implemented Endpoints: **7**
+
+- 2 Student Auth APIs
+- 2 Admin Auth APIs
+- 2 Main Admin Management APIs
+- 1 Student Hostel View API
+
+Room management and booking APIs are pending implementation.
+
+# 📌 Next Milestone
+
+Finalize room creation strategy →  
+Implement room APIs →  
+Build FCFS booking transaction engine.

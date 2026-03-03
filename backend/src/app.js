@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import studentAuthRoutes from "./routes/studentAuthRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import adminHostelRoutes from "./routes/adminHostelRoutes.js";
+import studentHostelRoutes from "./routes/studentHostelRoutes.js";
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(morgan("dev"));
 
 app.use("/api/student", studentAuthRoutes);
 app.use("/api/admin", adminAuthRoutes);
+app.use("/api/admin", adminHostelRoutes);
+app.use("/api/student", studentHostelRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
