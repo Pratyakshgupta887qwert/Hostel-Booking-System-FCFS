@@ -108,10 +108,10 @@ const StudentDashboard = () => {
 
       {/* --- ACTIONS & SUPPORT --- */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-         <button className="w-full sm:w-auto py-3 px-6 rounded-xl text-sm font-bold text-white bg-[#137fec]/90 border border-[#137fec]/50 hover:bg-[#137fec] shadow-[0_0_20px_rgba(19,127,236,0.4)] transition-all transform hover:scale-[1.02] backdrop-blur-md">
+         <button className="w-full sm:w-auto py-3 px-6 rounded-xl text-sm font-bold text-white bg-[#137fec]/90 border border-[#137fec]/50 hover:bg-[#137fec] shadow-[0_0_20px_rgba(19,127,236,0.4)] transition-all transform hover:scale-[1.02] backdrop-blur-md cursor-pointer">
             Download Payment Receipt
          </button>
-         <button className="w-full sm:w-auto py-3 px-6 rounded-xl text-sm font-bold text-slate-200 bg-[#15202b]/60 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-md">
+         <button className="w-full sm:w-auto py-3 px-6 rounded-xl text-sm font-bold text-slate-200 bg-[#15202b]/60 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-md cursor-pointer">
             Report an Issue
          </button>
       </div>
