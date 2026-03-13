@@ -1,17 +1,42 @@
 import { Sequelize } from "sequelize";
-
 import dotenv from "dotenv";
+
 dotenv.config();
 
-const authSequelize = new Sequelize(
-  process.env.AUTH_DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    dialect: "postgres",
-    logging: false,
+const authSequelize = new Sequelize(process.env.AUTH_DATABASE_URL, {
+  dialect: "postgres",
+
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
+
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+
+  logging: false,
+});
+
+export default authSequelize;
+
+// import dotenv from "dotenv";
+// dotenv.config();
+
+// const authSequelize = new Sequelize(
+//   process.env.AUTH_DB_NAME,
+//   process.env.DB_USER,
+//   process.env.DB_PASSWORD,
+//   {
+//     host: process.env.DB_HOST,
+//     port: Number(process.env.DB_PORT),
+//     dialect: "postgres",
+//     logging: false,
 
 // import { Sequelize } from "sequelize";
 // // import dotenv from "dotenv";
