@@ -8,16 +8,27 @@ const HostelStudent = hostelSequelize.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
-    year: DataTypes.INTEGER,
-    gender: DataTypes.STRING,
+
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     room_allocated: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    block: {
-      type: DataTypes.STRING,
+
+    hostel_id: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
+
     room_number: {
       type: DataTypes.STRING,
       allowNull: true,
