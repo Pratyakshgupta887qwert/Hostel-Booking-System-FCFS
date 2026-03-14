@@ -4,18 +4,17 @@ dotenv.config();
 import bcrypt from "bcryptjs";
 import { Sequelize, DataTypes } from "sequelize";
 
-// Create Sequelize instance for Auth DB
-const sequelize = new Sequelize(
-  process.env.AUTH_DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres",
-    logging: false,
+// Create Sequelize instance using Neon connection URL
+const sequelize = new Sequelize(process.env.AUTH_DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
-);
+});
 
 // Define Student model
 const Student = sequelize.define(
@@ -59,7 +58,9 @@ const Student = sequelize.define(
 
 async function seedStudents() {
   try {
-    await sequelize.sync({ force: true });
+    await sequelize.authenticate();
+
+    await Student.sync({ force: true });
 
     const hashedPassword = await bcrypt.hash("student123", 10);
 
