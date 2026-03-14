@@ -4,18 +4,17 @@ dotenv.config();
 import bcrypt from "bcryptjs";
 import { Sequelize, DataTypes } from "sequelize";
 
-// Create Sequelize instance for Auth DB
-const sequelize = new Sequelize(
-  process.env.AUTH_DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres",
-    logging: false,
+// Create Sequelize instance using Neon connection URL
+const sequelize = new Sequelize(process.env.AUTH_DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
-);
+});
 
 // Define Admin model
 const Admin = sequelize.define(
@@ -51,6 +50,8 @@ const Admin = sequelize.define(
 
 async function seedAdmins() {
   try {
+    await sequelize.authenticate();
+
     await Admin.sync({ force: true });
 
     const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -70,7 +71,6 @@ async function seedAdmins() {
     await Admin.bulkCreate(admins);
 
     console.log("10 admins inserted successfully ✅");
-    console.log("Default password for all admins: admin123");
 
     process.exit();
   } catch (error) {
