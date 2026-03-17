@@ -72,7 +72,7 @@ async function seedStudents() {
         name: `Student${i}`,
         email: `student${i}@gla.ac.in`,
         password: hashedPassword,
-        year: Math.floor(Math.random() * 4) + 1,
+        year: (i % 4) + 1,
         gender: i % 2 === 0 ? "male" : "female",
         hosteller: i <= 350,
       });
