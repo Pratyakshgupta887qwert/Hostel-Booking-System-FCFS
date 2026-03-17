@@ -19,6 +19,7 @@ app.use("/api/student", studentAuthRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin", adminHostelRoutes);
 app.use("/api/student", studentHostelRoutes);
+app.use("/api/admin", adminHostelRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
