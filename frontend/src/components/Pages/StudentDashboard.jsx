@@ -19,7 +19,9 @@ const StudentDashboard = () => {
         const hostelResponse = await getEligibleHostels();
         setHostels(hostelResponse);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Unable to load student dashboard."));
+        toast.error(
+          getErrorMessage(error, "Unable to load student dashboard."),
+        );
       } finally {
         setIsLoading(false);
       }

@@ -31,8 +31,8 @@ const RoomManagement = () => {
     try {
       const response = await getAllHostels();
       setHostels(response);
-      setSelectedHostel((current) =>
-        current || response[0]?.hostel_id?.toString() || "",
+      setSelectedHostel(
+        (current) => current || response[0]?.hostel_id?.toString() || "",
       );
     } catch (loadError) {
       toast.error(getErrorMessage(loadError, "Unable to load hostels."));
@@ -336,7 +336,9 @@ const RoomManagement = () => {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-bold text-white">{hostel.hostel_name}</p>
+                      <p className="font-bold text-white">
+                        {hostel.hostel_name}
+                      </p>
                       <p className="text-xs text-slate-400 mt-1">
                         ID {hostel.hostel_id} • {hostel.gender} • Years{" "}
                         {hostel.allowed_years.length > 0
@@ -411,31 +413,41 @@ const RoomManagement = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div className="p-4 bg-sky-500/10 rounded-xl border border-sky-500/20">
-              <p className="text-xs text-sky-300 font-bold uppercase">New Rooms</p>
+              <p className="text-xs text-sky-300 font-bold uppercase">
+                New Rooms
+              </p>
               <p className="text-2xl font-black text-sky-300 mt-1">
                 {previewData.summary.new_rooms}
               </p>
             </div>
             <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
-              <p className="text-xs text-amber-300 font-bold uppercase">Updated</p>
+              <p className="text-xs text-amber-300 font-bold uppercase">
+                Updated
+              </p>
               <p className="text-2xl font-black text-amber-300 mt-1">
                 {previewData.summary.updated_rooms}
               </p>
             </div>
             <div className="p-4 bg-slate-500/10 rounded-xl border border-slate-500/20">
-              <p className="text-xs text-slate-300 font-bold uppercase">Unchanged</p>
+              <p className="text-xs text-slate-300 font-bold uppercase">
+                Unchanged
+              </p>
               <p className="text-2xl font-black text-slate-100 mt-1">
                 {previewData.summary.unchanged_rooms}
               </p>
             </div>
             <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20">
-              <p className="text-xs text-red-300 font-bold uppercase">Skipped</p>
+              <p className="text-xs text-red-300 font-bold uppercase">
+                Skipped
+              </p>
               <p className="text-2xl font-black text-red-300 mt-1">
                 {previewData.summary.skipped_rows}
               </p>
             </div>
             <div className="p-4 bg-[#0b1118]/60 rounded-xl border border-white/10">
-              <p className="text-xs text-slate-400 font-bold uppercase">Warnings</p>
+              <p className="text-xs text-slate-400 font-bold uppercase">
+                Warnings
+              </p>
               <p className="text-2xl font-black text-white mt-1">
                 {previewData.warnings.length}
               </p>
@@ -455,8 +467,13 @@ const RoomManagement = () => {
               </thead>
               <tbody>
                 {previewRows.map((room, index) => (
-                  <tr key={`${room.status}-${room.room_number || index}`} className="border-b border-white/10">
-                    <td className="px-6 py-4">{renderStatusBadge(room.status)}</td>
+                  <tr
+                    key={`${room.status}-${room.room_number || index}`}
+                    className="border-b border-white/10"
+                  >
+                    <td className="px-6 py-4">
+                      {renderStatusBadge(room.status)}
+                    </td>
                     <td className="px-6 py-4 font-mono font-bold text-white">
                       {room.room_number || "N/A"}
                     </td>

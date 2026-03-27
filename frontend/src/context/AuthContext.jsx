@@ -68,41 +68,55 @@ export const AuthProvider = ({ children }) => {
     startTransition(() => setSession(null));
   }, []);
 
-  const refreshProfile = useCallback(async (roleOverride) => {
-    const currentSession = readStoredSession();
-    const activeRole = roleOverride || currentSession?.role;
-    const token = currentSession?.token;
-    if (!activeRole || !token) return null;
+  const refreshProfile = useCallback(
+    async (roleOverride) => {
+      const currentSession = readStoredSession();
+      const activeRole = roleOverride || currentSession?.role;
+      const token = currentSession?.token;
+      if (!activeRole || !token) return null;
 
-    const response = activeRole === "admin" ? await getAdminProfile() : await getStudentProfile();
-    persistSession({ token, role: activeRole, user: response.user });
-    return response.user;
-  }, [persistSession]);
+      const response =
+        activeRole === "admin"
+          ? await getAdminProfile()
+          : await getStudentProfile();
+      persistSession({ token, role: activeRole, user: response.user });
+      return response.user;
+    },
+    [persistSession],
+  );
 
-  const signIn = useCallback(async ({ role, email, password }) => {
-    if (pendingLoginRef.current) return pendingLoginRef.current;
+  const signIn = useCallback(
+    async ({ role, email, password }) => {
+      if (pendingLoginRef.current) return pendingLoginRef.current;
 
-    const loginFn = role === "admin" ? loginAdmin : loginStudent;
-    const request = (async () => {
-      const loginResponse = await loginFn({ email, password });
-      localStorage.setItem(STORAGE_KEYS.token, loginResponse.token);
-      localStorage.setItem(STORAGE_KEYS.role, role);
+      const loginFn = role === "admin" ? loginAdmin : loginStudent;
+      const request = (async () => {
+        const loginResponse = await loginFn({ email, password });
+        localStorage.setItem(STORAGE_KEYS.token, loginResponse.token);
+        localStorage.setItem(STORAGE_KEYS.role, role);
 
+        try {
+          await refreshProfile(role);
+        } catch (error) {
+          clearSession();
+          throw new Error(
+            getErrorMessage(
+              error,
+              "Login worked, but profile could not be loaded.",
+            ),
+          );
+        }
+      })();
+
+      pendingLoginRef.current = request;
       try {
-        await refreshProfile(role);
-      } catch (error) {
-        clearSession();
-        throw new Error(getErrorMessage(error, "Login worked, but profile could not be loaded."));
+        await request;
+      } finally {
+        pendingLoginRef.current = null;
       }
-    })();
-
-    pendingLoginRef.current = request;
-    try {
-      await request;
-    } finally {
-      pendingLoginRef.current = null;
-    }
-  }, [clearSession, refreshProfile]);
+    },
+    [clearSession, refreshProfile],
+  );
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -123,7 +137,18 @@ export const AuthProvider = ({ children }) => {
   }, [clearSession, refreshProfile]);
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, role: session?.role ?? null, isAuthenticated: Boolean(session?.token), isBootstrapping, signIn, signOut: clearSession, refreshProfile }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user: session?.user ?? null,
+        role: session?.role ?? null,
+        isAuthenticated: Boolean(session?.token),
+        isBootstrapping,
+        signIn,
+        signOut: clearSession,
+        refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

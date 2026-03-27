@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:5000/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:5000/api";
 
 export const api = axios.create({ baseURL: API_BASE_URL });
 
@@ -12,7 +13,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const getErrorMessage = (error, fallbackMessage) => error?.response?.data?.message || fallbackMessage;
+export const getErrorMessage = (error, fallbackMessage) =>
+  error?.response?.data?.message || fallbackMessage;
 
 export const loginStudent = async (payload) => {
   const { data } = await api.post("/student/login", payload);
@@ -57,13 +59,19 @@ export const addAllowedYears = async (hostelId, payload) => {
 export const previewRooms = async (hostelId, file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const { data } = await api.post(`/admin/hostels/${hostelId}/rooms/preview`, formData);
+  const { data } = await api.post(
+    `/admin/hostels/${hostelId}/rooms/preview`,
+    formData,
+  );
   return data;
 };
 
 export const confirmRooms = async (hostelId, file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const { data } = await api.post(`/admin/hostels/${hostelId}/rooms/confirm`, formData);
+  const { data } = await api.post(
+    `/admin/hostels/${hostelId}/rooms/confirm`,
+    formData,
+  );
   return data;
 };
