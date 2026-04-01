@@ -5,8 +5,8 @@ export const normalizeRoomNumber = (value) => {
 export const normalizeBoolean = (value) => {
   const val = String(value).trim().toLowerCase();
 
-  if (["true", "yes", "1", "ac", "y"].includes(val)) return true;
-  if (["false", "no", "0", "nonac", "n", "non-ac"].includes(val)) return false;
+  if (["true", "yes", "ac", "y"].includes(val)) return true;
+  if (["false", "no", "nonac", "n", "non-ac"].includes(val)) return false;
 
   return null;
 };
